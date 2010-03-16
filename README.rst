@@ -50,6 +50,19 @@ and I am by no means a Python extension expert,
 so it is quite possible that it contains bugs.
 I'd guess the most likely are reference leaks in error cases.
 
+RE2 doesn't build with fPIC, so I had to bulid it with
+
+::
+
+  make CFLAGS='-fPIC -c -Wall -Wno-sign-compare -O3 -g -I.'
+
+I also had to add it to my compiler search path when building the module
+with a command like
+
+::
+
+  env CPPFLAGS='-I/path/to/re2' LDFLAGS='-L/path/to/re2/obj' ./setup.py build
+
 
 Contact
 =======
