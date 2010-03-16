@@ -49,3 +49,10 @@ pyre2 has only received basic testing,
 and I am by no means a Python extension expert,
 so it is quite possible that it contains bugs.
 I'd guess the most likely are reference leaks in error cases.
+
+
+Contact
+=======
+
+You can file bug reports on GitHub, or email the author:
+David Reiss <dreiss@facebook.com>.
