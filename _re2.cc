@@ -34,7 +34,7 @@
 #include <new>
 using std::nothrow;
 
-#include "re2/re2.h"
+#include <re2/re2.h>
 using re2::RE2;
 using re2::StringPiece;
 
