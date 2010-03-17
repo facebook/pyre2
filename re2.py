@@ -2,7 +2,7 @@
 
 # Define this first, since it is referenced by _re2.
 class error(Exception):
-  pass
+    pass
 
 import _re2
 
