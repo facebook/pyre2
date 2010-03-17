@@ -32,4 +32,32 @@ class error(Exception):
 
 import _re2
 
-compile = _re2._compile
+__all__ = [
+    "error",
+    "compile",
+    "search",
+    "match",
+    "fullmatch",
+    ]
+
+# Module-private compilation function, for future caching, other enhancements
+_compile = _re2._compile
+
+def compile(pattern):
+    "Compile a regular expression pattern, returning a pattern object."
+    return _compile(pattern)
+
+def search(pattern, string):
+    """Scan through string looking for a match to the pattern, returning
+    a match object, or None if no match was found."""
+    return _compile(pattern).search(string)
+
+def match(pattern, string):
+    """Try to apply the pattern at the start of the string, returning
+    a match object, or None if no match was found."""
+    return _compile(pattern).match(string)
+
+def fullmatch(pattern, string):
+    """Try to apply the pattern to the entire string, returning
+    a match object, or None if no match was found."""
+    return _compile(pattern).fullmatch(string)
