@@ -253,6 +253,7 @@ create_regexp(PyObject* pattern)
     return NULL;
   }
   regexp->re2_obj = NULL;
+  regexp->attr_dict = NULL;
 
   const char* raw_pattern = PyString_AS_STRING(pattern);
   Py_ssize_t len_pattern = PyString_GET_SIZE(pattern);
@@ -437,6 +438,7 @@ create_match(PyObject* re, PyObject* string,
     delete[] groups;
     return NULL;
   }
+  match->attr_dict = NULL;
   match->groups = groups;
   match->re = re;
   match->string = string;
