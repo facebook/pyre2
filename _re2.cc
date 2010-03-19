@@ -39,14 +39,14 @@ using re2::RE2;
 using re2::StringPiece;
 
 
-typedef struct {
+typedef struct _RegexpObject2 {
   PyObject_HEAD
   // __dict__.  Simpler than implementing getattr and possibly faster.
   PyObject* attr_dict;
   RE2* re2_obj;
 } RegexpObject2;
 
-typedef struct {
+typedef struct _MatchObject2 {
   PyObject_HEAD
   // __dict__.  Simpler than implementing getattr and possibly faster.
   PyObject* attr_dict;
