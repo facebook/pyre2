@@ -710,12 +710,10 @@ static PyMethodDef methods[] = {
 PyMODINIT_FUNC
 init_re2(void)
 {
-  Regexp_Type2.tp_new = PyType_GenericNew;
   if (PyType_Ready(&Regexp_Type2) < 0) {
     return;
   }
 
-  Match_Type2.tp_new = PyType_GenericNew;
   if (PyType_Ready(&Match_Type2) < 0) {
     return;
   }
