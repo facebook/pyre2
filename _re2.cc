@@ -258,7 +258,10 @@ create_regexp(PyObject* pattern)
   const char* raw_pattern = PyString_AS_STRING(pattern);
   Py_ssize_t len_pattern = PyString_GET_SIZE(pattern);
 
-  regexp->re2_obj = new(nothrow) RE2(StringPiece(raw_pattern, len_pattern));
+  RE2::Options options;
+  options.set_log_errors(false);
+
+  regexp->re2_obj = new(nothrow) RE2(StringPiece(raw_pattern, len_pattern), options);
 
   if (regexp->re2_obj == NULL) {
     PyErr_NoMemory();
