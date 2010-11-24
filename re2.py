@@ -30,7 +30,7 @@
 class error(Exception):
     pass
 
-import _re2, sys
+import _re2, sys, unittest
 from re import IGNORECASE
 
 __all__ = [
@@ -97,3 +97,13 @@ def finditer(pattern, string, flags = None):
     """Return an iterator yielding MatchObject instances over all
     non-overlapping matches for the RE pattern in string."""
     return compile(pattern, flags).finditer(string)
+
+class Re2Test(unittest.TestCase):
+  def test_case(self):
+    self.assertEqual(findall('a', 'A', IGNORECASE), ['A'])
+    self.assertEqual(findall('a', 'A'), [])
+  def test_findall(self):
+    self.assertEqual(findall('aa','aaaa'), ['aa','aa'])
+
+if __name__ == '__main__':
+  unittest.main()
