@@ -52,17 +52,17 @@ def compile(pattern, flags = None):
       raise NotImplementedError('')
     return _compile(pattern, flags)
 
-def search(pattern, string):
+def search(pattern, string, flags = None):
     """Scan through string looking for a match to the pattern, returning
     a match object, or None if no match was found."""
-    return compile(pattern).search(string)
+    return compile(pattern, flags).search(string)
 
-def match(pattern, string):
+def match(pattern, string, flags = None):
     """Try to apply the pattern at the start of the string, returning
     a match object, or None if no match was found."""
-    return compile(pattern).match(string)
+    return compile(pattern, flags).match(string)
 
-def fullmatch(pattern, string):
+def fullmatch(pattern, string, flags = None):
     """Try to apply the pattern to the entire string, returning
     a match object, or None if no match was found."""
-    return compile(pattern).fullmatch(string)
+    return compile(pattern, flags).fullmatch(string)
