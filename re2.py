@@ -31,6 +31,7 @@ class error(Exception):
     pass
 
 import _re2
+from re import IGNORECASE
 
 __all__ = [
     "error",
@@ -38,26 +39,30 @@ __all__ = [
     "search",
     "match",
     "fullmatch",
+    "IGNORECASE",
     ]
 
 # Module-private compilation function, for future caching, other enhancements
 _compile = _re2._compile
 
-def compile(pattern):
+def compile(pattern, flags = None):
     "Compile a regular expression pattern, returning a pattern object."
-    return _compile(pattern)
+    flags = flags or 0
+    if flags & (~IGNORECASE):
+      raise NotImplementedError('')
+    return _compile(pattern, flags)
 
 def search(pattern, string):
     """Scan through string looking for a match to the pattern, returning
     a match object, or None if no match was found."""
-    return _compile(pattern).search(string)
+    return compile(pattern).search(string)
 
 def match(pattern, string):
     """Try to apply the pattern at the start of the string, returning
     a match object, or None if no match was found."""
-    return _compile(pattern).match(string)
+    return compile(pattern).match(string)
 
 def fullmatch(pattern, string):
     """Try to apply the pattern to the entire string, returning
     a match object, or None if no match was found."""
-    return _compile(pattern).fullmatch(string)
+    return compile(pattern).fullmatch(string)

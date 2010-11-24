@@ -34,6 +34,8 @@
 #include <new>
 using std::nothrow;
 
+#define IGNORECASE 2
+
 #include <re2/re2.h>
 using re2::RE2;
 using re2::StringPiece;
@@ -246,7 +248,7 @@ regexp_dealloc(RegexpObject2* self)
 }
 
 static PyObject*
-create_regexp(PyObject* pattern)
+create_regexp(PyObject* pattern, int flags)
 {
   RegexpObject2* regexp = PyObject_New(RegexpObject2, &Regexp_Type2);
   if (regexp == NULL) {
@@ -260,6 +262,8 @@ create_regexp(PyObject* pattern)
 
   RE2::Options options;
   options.set_log_errors(false);
+  if (flags & IGNORECASE)
+    options.set_case_sensitive(false);
 
   regexp->re2_obj = new(nothrow) RE2(StringPiece(raw_pattern, len_pattern), options);
 
@@ -691,16 +695,18 @@ _compile(RegexpObject2* self, PyObject* args, PyObject* kwds)
 {
   static const char* kwlist[] = {
     "pattern",
+    "flags",
     NULL};
 
   PyObject* pattern;
+  int flags;
 
-  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O", (char**)kwlist,
-        &pattern)) {
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "Oi", (char**)kwlist,
+        &pattern, &flags)) {
     return NULL;
   }
 
-  return create_regexp(pattern);
+  return create_regexp(pattern, flags);
 }
 
 static PyMethodDef methods[] = {
