@@ -30,7 +30,7 @@
 class error(Exception):
     pass
 
-import _re2
+import _re2, sys
 from re import IGNORECASE
 
 __all__ = [
@@ -45,12 +45,33 @@ __all__ = [
 # Module-private compilation function, for future caching, other enhancements
 _compile = _re2._compile
 
+class Regex(object):
+    def __init__(self, re):
+        self.re = re
+    def __getattr__(self, attr):
+        return getattr(self.re, attr)
+    def findall(self, string, pos = 0, endpos = sys.maxint):
+        """Similar to the findall() function, using the compiled pattern, but
+        also accepts optional pos and endpos parameters that limit the search
+        region like for match(). """
+        return [m.group() for m in self.finditer(string, pos, endpos)]
+    def finditer(self, string, pos = 0, endpos = sys.maxint):
+        """Similar to the finditer() function, using the compiled pattern, but
+        also accepts optional pos and endpos parameters that limit the search
+        region like for match()."""
+        while 1:
+            m = self.re.search(string, pos, endpos)
+            if m is None:
+                break
+            yield m
+            pos = m.end()
+
 def compile(pattern, flags = None):
     "Compile a regular expression pattern, returning a pattern object."
     flags = flags or 0
     if flags & (~IGNORECASE):
       raise NotImplementedError('')
-    return _compile(pattern, flags)
+    return Regex(_compile(pattern, flags))
 
 def search(pattern, string, flags = None):
     """Scan through string looking for a match to the pattern, returning
@@ -66,3 +87,13 @@ def fullmatch(pattern, string, flags = None):
     """Try to apply the pattern to the entire string, returning
     a match object, or None if no match was found."""
     return compile(pattern, flags).fullmatch(string)
+
+def findall(pattern, string, flags = None):
+    """Return all non-overlapping matches of pattern in string, as a list of
+    strings."""
+    return compile(pattern, flags).findall(string)
+
+def finditer(pattern, string, flags = None):
+    """Return an iterator yielding MatchObject instances over all
+    non-overlapping matches for the RE pattern in string."""
+    return compile(pattern, flags).finditer(string)
