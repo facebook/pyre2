@@ -361,8 +361,9 @@ _do_search(RegexpObject2* self, PyObject* args, PyObject* kwds, RE2::Anchor anch
   }
 
   bool matched = self->re2_obj->Match(
-      StringPiece(subject+pos, endpos-pos),
-      0,  // Not sure why this arg exists.
+      StringPiece(subject, slen),
+      pos,
+      endpos,
       anchor,
       groups,
       n_groups);
