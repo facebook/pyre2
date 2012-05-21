@@ -704,10 +704,25 @@ _compile(PyObject* self, PyObject* args, PyObject* kwds)
   return create_regexp(pattern);
 }
 
+static PyObject*
+escape(PyObject* self, PyObject* args)
+{
+  char *str;
+  Py_ssize_t len;
+
+  if (!PyArg_ParseTuple(args, "s#:escape", &str, &len)) {
+    return NULL;
+  }
+
+  std::string esc(RE2::QuoteMeta(StringPiece(str, (int) len)));
+
+  return PyString_FromStringAndSize(esc.c_str(), esc.size());
+}
+
 static PyMethodDef methods[] = {
-  {"_compile", (PyCFunction)_compile, METH_VARARGS | METH_KEYWORDS,
-    NULL
-  },
+  {"_compile", (PyCFunction)_compile, METH_VARARGS | METH_KEYWORDS, NULL},
+  {"escape", (PyCFunction)escape, METH_VARARGS,
+   "Escape all potentially meaningful regexp characters."},
   {NULL}  /* Sentinel */
 };
 

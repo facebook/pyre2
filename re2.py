@@ -34,6 +34,7 @@ import _re2
 
 __all__ = [
     "error",
+    "escape",
     "compile",
     "search",
     "match",
@@ -42,6 +43,7 @@ __all__ = [
 
 # Module-private compilation function, for future caching, other enhancements
 _compile = _re2._compile
+escape = _re2.escape
 
 def compile(pattern):
     "Compile a regular expression pattern, returning a pattern object."
