@@ -261,7 +261,7 @@ create_regexp(PyObject* pattern)
   RE2::Options options;
   options.set_log_errors(false);
 
-  regexp->re2_obj = new(nothrow) RE2(StringPiece(raw_pattern, len_pattern), options);
+  regexp->re2_obj = new(nothrow) RE2(StringPiece(raw_pattern, (int) len_pattern), options);
 
   if (regexp->re2_obj == NULL) {
     PyErr_NoMemory();
@@ -361,8 +361,9 @@ _do_search(RegexpObject2* self, PyObject* args, PyObject* kwds, RE2::Anchor anch
   }
 
   bool matched = self->re2_obj->Match(
-      StringPiece(subject+pos, endpos-pos),
-      0,  // Not sure why this arg exists.
+      StringPiece(subject, (int) slen),
+      (int) pos,
+      (int) endpos,
       anchor,
       groups,
       n_groups);
