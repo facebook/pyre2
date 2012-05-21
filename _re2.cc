@@ -688,7 +688,7 @@ match_span(MatchObject2* self, PyObject* args)
 
 
 static PyObject*
-_compile(RegexpObject2* self, PyObject* args, PyObject* kwds)
+_compile(PyObject* self, PyObject* args, PyObject* kwds)
 {
   static const char* kwlist[] = {
     "pattern",
