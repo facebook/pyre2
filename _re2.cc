@@ -65,7 +65,7 @@ typedef struct _MatchObject2 {
 } MatchObject2;
 
 
-// Imported from re2.
+// Imported from sre_constants.
 static PyObject* error_class;
 
 
@@ -737,15 +737,17 @@ init_re2(void)
     return;
   }
 
-  PyObject* re2_mod = PyImport_ImportModuleNoBlock("re2");
-  if (re2_mod == NULL) {
+  PyObject* sre_mod = PyImport_ImportModuleNoBlock("sre_constants");
+  if (sre_mod == NULL) {
     return;
   }
-  /* static global */ error_class = PyObject_GetAttrString(re2_mod, "error");
+  /* static global */ error_class = PyObject_GetAttrString(sre_mod, "error");
   if (error_class == NULL) {
     return;
   }
 
   PyObject* mod = Py_InitModule("_re2", methods);
-  (void)mod;
+
+  Py_INCREF(error_class);
+  PyModule_AddObject(mod, "error", error_class);
 }

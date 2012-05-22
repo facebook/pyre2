@@ -26,10 +26,6 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# Define this first, since it is referenced by _re2.
-class error(Exception):
-    pass
-
 import _re2
 
 __all__ = [
@@ -43,6 +39,8 @@ __all__ = [
 
 # Module-private compilation function, for future caching, other enhancements
 _compile = _re2._compile
+
+error = _re2.error
 escape = _re2.escape
 
 def compile(pattern):
