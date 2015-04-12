@@ -9,7 +9,7 @@ Summary
 
 pyre2 is a Python extension that wraps
 `Google's RE2 regular expression library
-<http://code.google.com/p/re2/>`_.
+<https://github.com/facebook/pyre2>`_.
 It implements many of the features of Python's built-in
 ``re`` module with compatible interfaces.
 
