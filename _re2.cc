@@ -694,10 +694,10 @@ _compile(PyObject* self, PyObject* args, PyObject* kwds)
     "pattern",
     NULL};
 
-  PyObject* pattern;
+  PyObject *pattern;
 
-  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O", (char**)kwlist,
-        &pattern)) {
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O!:_compile", (char**)kwlist,
+                                   &PyString_Type, &pattern)) {
     return NULL;
   }
 
