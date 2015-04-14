@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 # Copyright (c) 2010, David Reiss and Facebook, Inc. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
