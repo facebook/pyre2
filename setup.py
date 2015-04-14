@@ -4,13 +4,13 @@ from distutils.core import setup, Extension
 
 setup(
     name="fb-re2",
-    version="0.1.2",
+    version="1.0.0",
     url="https://github.com/facebook/pyre2",
     description="Python wrapper for Google's RE2",
     classifiers=[
         "Intended Audience :: Developers",
         "License :: OSI Approved :: BSD License",
-        "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Production/Stable",
     ],
     author="David Reiss",
     author_email="dreiss@fb.com",
