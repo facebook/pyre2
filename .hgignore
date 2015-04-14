@@ -1,1 +1,4 @@
 (?:build|dist)
+
+glob:*.so
+glob:*.py[cd]
