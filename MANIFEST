@@ -1,5 +1,7 @@
 LICENSE
+Makefile
 README.rst
 _re2.cc
 re2.py
 setup.py
+tests/test_match.py
