@@ -50,7 +50,7 @@ and I am by no means a Python extension expert,
 so it is quite possible that it contains bugs.
 I'd guess the most likely are reference leaks in error cases.
 
-RE2 doesn't build with fPIC, so I had to bulid it with
+RE2 doesn't build with fPIC, so I had to build it with
 
 ::
 
