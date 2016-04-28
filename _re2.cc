@@ -35,6 +35,7 @@
 using std::nothrow;
 
 #include <re2/re2.h>
+#include <re2/set.h>
 using re2::RE2;
 using re2::StringPiece;
 
@@ -64,6 +65,11 @@ typedef struct _MatchObject2 {
   StringPiece* groups;
 } MatchObject2;
 
+typedef struct _RegexpSetObject2 {
+  PyObject_HEAD
+  bool compiled;
+  RE2::Set* re2_set_obj;
+} RegexpSetObject2;
 
 // Imported from sre_constants.
 static PyObject* error_class;
@@ -86,7 +92,11 @@ static PyObject* match_groupdict(MatchObject2* self, PyObject* args, PyObject* k
 static PyObject* match_start(MatchObject2* self, PyObject* args);
 static PyObject* match_end(MatchObject2* self, PyObject* args);
 static PyObject* match_span(MatchObject2* self, PyObject* args);
-
+static void regexp_set_dealloc(RegexpSetObject2* self);
+static PyObject* regexp_set_add(RegexpSetObject2* self, PyObject* pattern);
+static PyObject* regexp_set_compile(RegexpSetObject2* self, PyObject* ignore);
+static PyObject* regexp_set_match(RegexpSetObject2* self, PyObject* text);
+static PyObject* regexp_set_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
 
 static PyMethodDef regexp_methods[] = {
   {"search", (PyCFunction)regexp_search, METH_VARARGS | METH_KEYWORDS,
@@ -139,6 +149,22 @@ static PyMethodDef match_methods[] = {
   {NULL}  /* Sentinel */
 };
 
+static PyMethodDef regexp_set_methods[] = {
+  {"add", (PyCFunction)regexp_set_add, METH_O,
+    "add(pattern) --> True or raises an exception.\n"
+    "    Add a pattern to the set, raising if the pattern doesn't parse."
+  },
+  {"compile", (PyCFunction)regexp_set_compile, METH_NOARGS,
+    "compile() --> True or raises an exception.\n"
+    "    Compile the set to prepare it for matching."
+  },
+  {"match", (PyCFunction)regexp_set_match, METH_O,
+    "match(text) --> list\n"
+    "    Match text against the set, returning the indexes of the added "
+    "patterns."
+  },
+  {NULL}  /* Sentinel */
+};
 
 // Simple method to block setattr.
 static int
@@ -236,6 +262,47 @@ static PyTypeObject Match_Type2 = {
   0,                           /*tp_new*/
 };
 
+static PyTypeObject RegexpSet_Type2 = {
+  PyObject_HEAD_INIT(NULL)
+  0,                               /*ob_size*/
+  "_re2.RE2_Set",                  /*tp_name*/
+  sizeof(RegexpSetObject2),        /*tp_basicsize*/
+  0,                               /*tp_itemsize*/
+  (destructor)regexp_set_dealloc,  /*tp_dealloc*/
+  0,                               /*tp_print*/
+  0,                               /*tp_getattr*/
+  0,                               /*tp_setattr*/
+  0,                               /*tp_compare*/
+  0,                               /*tp_repr*/
+  0,                               /*tp_as_number*/
+  0,                               /*tp_as_sequence*/
+  0,                               /*tp_as_mapping*/
+  0,                               /*tp_hash*/
+  0,                               /*tp_call*/
+  0,                               /*tp_str*/
+  0,                               /*tp_getattro*/
+  _no_setattr,                     /*tp_setattro*/
+  0,                               /*tp_as_buffer*/
+  Py_TPFLAGS_DEFAULT,              /*tp_flags*/
+  "RE2 regexp set objects",        /*tp_doc*/
+  0,                               /*tp_traverse*/
+  0,                               /*tp_clear*/
+  0,                               /*tp_richcompare*/
+  0,                               /*tp_weaklistoffset*/
+  0,                               /*tp_iter*/
+  0,                               /*tp_iternext*/
+  regexp_set_methods,              /*tp_methods*/
+  0,                               /*tp_members*/
+  0,                               /*tp_getset*/
+  0,                               /*tp_base*/
+  0,                               /*tp_dict*/
+  0,                               /*tp_descr_get*/
+  0,                               /*tp_descr_set*/
+  0,                               /*tp_dictoffset*/
+  0,                               /*tp_init*/
+  0,                               /*tp_alloc*/
+  regexp_set_new,                  /*tp_new*/
+};
 
 static void
 regexp_dealloc(RegexpObject2* self)
@@ -243,6 +310,59 @@ regexp_dealloc(RegexpObject2* self)
   delete self->re2_obj;
   Py_XDECREF(self->attr_dict);
   PyObject_Del(self);
+}
+
+static void
+regexp_set_dealloc(RegexpSetObject2* self)
+{
+  delete self->re2_set_obj;
+  PyObject_Del(self);
+}
+
+static PyObject *
+regexp_set_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int anchoring = RE2::UNANCHORED;
+
+    if (!PyArg_ParseTuple(args, "|I", &anchoring)) {
+      anchoring = -1;
+    }
+
+    switch (anchoring) {
+      case RE2::UNANCHORED:
+      case RE2::ANCHOR_START:
+      case RE2::ANCHOR_BOTH:
+        break;
+      default:
+        PyErr_SetString(PyExc_ValueError,
+          "anchoring must be one of re2.UNANCHORED, re2.ANCHOR_START, or "
+          "re2.ANCHOR_BOTH");
+        return NULL;
+    }
+
+    RegexpSetObject2 *self;
+
+    self = (RegexpSetObject2 *)type->tp_alloc(type, 0);
+
+    if (self != NULL) {
+      RE2::Options options;
+      options.set_log_errors(false);
+
+      self->compiled = false;
+      self->re2_set_obj = NULL;
+      self->re2_set_obj = new(nothrow) RE2::Set(
+        options,
+        (RE2::Anchor) anchoring
+      );
+
+      if (self->re2_set_obj == NULL) {
+        PyErr_NoMemory();
+        Py_DECREF(self);
+        return NULL;
+      }
+    }
+
+    return (PyObject *)self;
 }
 
 static PyObject*
@@ -719,6 +839,94 @@ escape(PyObject* self, PyObject* args)
   return PyString_FromStringAndSize(esc.c_str(), esc.size());
 }
 
+static PyObject*
+regexp_set_add(RegexpSetObject2* self, PyObject* pattern)
+{
+  int seq = -1;
+  std::string add_error;
+  const char* raw_pattern;
+
+  if (self->compiled) {
+    PyErr_SetString(PyExc_RuntimeError, "Can't add() on an already compiled Set");
+
+    return NULL;
+  }
+
+  raw_pattern = PyString_AsString(pattern);
+
+  if (!raw_pattern) {
+    return NULL;
+  }
+
+  seq = self->re2_set_obj->Add(raw_pattern, &add_error);
+
+  if (seq < 0) {
+    PyErr_SetString(PyExc_ValueError, add_error.c_str());
+
+    return NULL;
+  } else {
+    return PyLong_FromLong((long) seq);
+  }
+}
+
+static PyObject*
+regexp_set_compile(RegexpSetObject2* self, PyObject* ignore)
+{
+  bool compiled = false;
+
+  if (self->compiled) {
+    Py_RETURN_TRUE;
+  }
+
+  compiled = self->re2_set_obj->Compile();
+
+  if (compiled) {
+    self->compiled = true;
+    Py_RETURN_TRUE;
+  } else {
+    PyErr_SetString(PyExc_MemoryError, "Ran out of memory during compile");
+
+    return NULL;
+  }
+}
+
+static PyObject*
+regexp_set_match(RegexpSetObject2* self, PyObject* text)
+{
+  bool matched = false;
+  std::vector<int> idxes;
+  const char* raw_text;
+  Py_ssize_t len_text;
+
+  if (!self->compiled) {
+    PyErr_SetString(PyExc_RuntimeError, "Can't match() on an uncompiled Set");
+
+    return NULL;
+  }
+
+  raw_text = PyString_AsString(text);
+
+  if (!raw_text) {
+    return NULL;
+  }
+
+  len_text = PyString_GET_SIZE(text);
+
+  matched = self->re2_set_obj->Match(StringPiece(raw_text, (int) len_text), &idxes);
+
+  if (matched) {
+    PyObject* match_indexes = PyList_New(idxes.size());
+
+    for(std::vector<int>::size_type i = 0; i != idxes.size(); i++) {
+      PyList_SetItem(match_indexes, (Py_ssize_t) i, PyLong_FromLong((long) idxes.at(i)));
+    }
+
+    return match_indexes;
+  } else {
+    return PyList_New(0);
+  }
+}
+
 static PyMethodDef methods[] = {
   {"_compile", (PyCFunction)_compile, METH_VARARGS | METH_KEYWORDS, NULL},
   {"escape", (PyCFunction)escape, METH_VARARGS,
@@ -737,6 +945,10 @@ init_re2(void)
     return;
   }
 
+  if (PyType_Ready(&RegexpSet_Type2) < 0) {
+    return;
+  }
+
   PyObject* sre_mod = PyImport_ImportModuleNoBlock("sre_constants");
   if (sre_mod == NULL) {
     return;
@@ -750,4 +962,11 @@ init_re2(void)
 
   Py_INCREF(error_class);
   PyModule_AddObject(mod, "error", error_class);
+
+  Py_INCREF(&RegexpSet_Type2);
+  PyModule_AddObject(mod, "Set", (PyObject *)&RegexpSet_Type2);
+
+  PyModule_AddIntConstant(mod, "UNANCHORED", RE2::UNANCHORED);
+  PyModule_AddIntConstant(mod, "ANCHOR_START", RE2::ANCHOR_START);
+  PyModule_AddIntConstant(mod, "ANCHOR_BOTH", RE2::ANCHOR_BOTH);
 }
