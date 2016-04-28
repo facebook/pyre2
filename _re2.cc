@@ -261,7 +261,7 @@ create_regexp(PyObject* pattern)
   RE2::Options options;
   options.set_log_errors(false);
 
-  regexp->re2_obj = new(nothrow) RE2(StringPiece(raw_pattern, (int) len_pattern), options);
+  regexp->re2_obj = new(nothrow) RE2(StringPiece(raw_pattern, (int)len_pattern), options);
 
   if (regexp->re2_obj == NULL) {
     PyErr_NoMemory();
@@ -321,8 +321,6 @@ static PyObject*
 _do_search(RegexpObject2* self, PyObject* args, PyObject* kwds, RE2::Anchor anchor, bool return_match)
 {
   PyObject* string;
-  const char* subject;
-  Py_ssize_t slen;
   long pos = 0;
   long endpos = LONG_MAX;
 
@@ -340,8 +338,8 @@ _do_search(RegexpObject2* self, PyObject* args, PyObject* kwds, RE2::Anchor anch
     return NULL;
   }
 
-  subject = PyString_AS_STRING(string);
-  slen = PyString_GET_SIZE(string);
+  const char* subject = PyString_AS_STRING(string);
+  Py_ssize_t slen = PyString_GET_SIZE(string);
   if (pos < 0) pos = 0;
   if (pos > slen) pos = slen;
   if (endpos < pos) endpos = pos;
@@ -361,9 +359,9 @@ _do_search(RegexpObject2* self, PyObject* args, PyObject* kwds, RE2::Anchor anch
   }
 
   bool matched = self->re2_obj->Match(
-      StringPiece(subject, (int) slen),
-      (int) pos,
-      (int) endpos,
+      StringPiece(subject, (int)slen),
+      (int)pos,
+      (int)endpos,
       anchor,
       groups,
       n_groups);
@@ -714,7 +712,7 @@ escape(PyObject* self, PyObject* args)
     return NULL;
   }
 
-  std::string esc(RE2::QuoteMeta(StringPiece(str, (int) len)));
+  std::string esc(RE2::QuoteMeta(StringPiece(str, (int)len)));
 
   return PyString_FromStringAndSize(esc.c_str(), esc.size());
 }
