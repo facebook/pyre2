@@ -33,13 +33,22 @@ __all__ = [
     "search",
     "match",
     "fullmatch",
-    ]
+    "Set",
+    "UNANCHORED",
+    "ANCHOR_START",
+    "ANCHOR_BOTH",
+]
 
 # Module-private compilation function, for future caching, other enhancements
 _compile = _re2._compile
 
 error = _re2.error
 escape = _re2.escape
+Set = _re2.Set
+UNANCHORED = _re2.UNANCHORED
+ANCHOR_START = _re2.ANCHOR_START
+ANCHOR_BOTH = _re2.ANCHOR_BOTH
+
 
 def compile(pattern):
     "Compile a regular expression pattern, returning a pattern object."
