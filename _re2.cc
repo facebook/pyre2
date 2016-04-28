@@ -865,7 +865,7 @@ regexp_set_add(RegexpSetObject2* self, PyObject* pattern)
 
     return NULL;
   } else {
-    return PyLong_FromLong((long) seq);
+    return PyInt_FromLong(seq);
   }
 }
 
@@ -918,7 +918,7 @@ regexp_set_match(RegexpSetObject2* self, PyObject* text)
     PyObject* match_indexes = PyList_New(idxes.size());
 
     for(std::vector<int>::size_type i = 0; i != idxes.size(); i++) {
-      PyList_SetItem(match_indexes, (Py_ssize_t) i, PyLong_FromLong((long) idxes.at(i)));
+      PyList_SetItem(match_indexes, (Py_ssize_t) i, PyInt_FromLong(idxes.at(i)));
     }
 
     return match_indexes;
