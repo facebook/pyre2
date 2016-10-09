@@ -4,7 +4,7 @@ from distutils.core import setup, Extension
 
 setup(
     name="fb-re2",
-    version="1.0.4",
+    version="1.0.5",
     url="https://github.com/facebook/pyre2",
     description="Python wrapper for Google's RE2",
     classifiers=[
