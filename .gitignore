@@ -2,3 +2,4 @@
 /dist
 *.so
 *.py[co]
+/ms_re2.egg-info
