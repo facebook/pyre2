@@ -21,6 +21,5 @@ setup(
       sources = ["_re2.cc"],
       libraries = ["re2"],
       extra_compile_args=['-std=c++11'],
-      include_dirs=['../re2/re2'],
       )],
     )
