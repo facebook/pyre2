@@ -131,7 +131,7 @@ static PyMethodDef regexp_methods[] = {
     "test_fullmatch(string[, pos[, endpos]]) --> match object or None.\n"
     "    Like 'fullmatch', but only returns whether a match was found."
   },
-  NULL  /* Sentinel */
+  {NULL}  /* Sentinel */
 };
 
 static PyMethodDef match_methods[] = {
