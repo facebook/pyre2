@@ -33,6 +33,7 @@ __all__ = [
     "search",
     "match",
     "fullmatch",
+    "replace",
     "Set",
     "UNANCHORED",
     "ANCHOR_START",
@@ -68,3 +69,9 @@ def fullmatch(pattern, string):
     """Try to apply the pattern to the entire string, returning
     a match object, or None if no match was found."""
     return _compile(pattern).fullmatch(string)
+
+def replace(string, pattern, replacement_string):
+    """Try to apply the pattern to the entire string, overwriting with the
+    replacement string on every non-overlapping occurrence."""
+    return _compile(pattern).replace(string, replacement_string, pattern)
+
