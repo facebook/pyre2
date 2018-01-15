@@ -35,6 +35,39 @@ class TestMatch(unittest.TestCase):
         r = re2.compile('ab([cde]fg)')
         self.assertRaises(TypeError, lambda: re2.match(r, 'abdfghij'))
 
+    def test_match_bytes(self):
+        ''' test that we can match things in the bytes type '''
+        r = re2.compile('(\\x09)')
+        m = r.match(b'\x09')
+        self.assertIsNotNone(m)
+        g = m.groups()
+        self.assertTrue(isinstance(g, tuple))
+        self.assertTrue(isinstance(g[0], bytes))
+        self.assertEqual(b'\x09', g[0])
+
+    def test_match_str(self):
+        ''' test that we can match binary things in the str type '''
+        r = re2.compile('(\\x09)')
+        m = r.match('\x09')
+        self.assertIsNotNone(m)
+        g = m.groups()
+        self.assertTrue(isinstance(g, tuple))
+        self.assertTrue(isinstance(g[0], str))
+        self.assertEqual('\x09', g[0])
+
+    def test_match_bad_utf8_bytes(self):
+        ''' Validate that we just return None on invalid utf-8 '''
+        r = re2.compile('\\x80')
+        m = r.match(b'\x80')
+        self.assertIsNone(m)
+
+    def test_span_type(self):
+        ''' verify that start/end return the native literal integer type '''
+        r = re2.compile('abc')
+        m = r.match('abc')
+        self.assertTrue(isinstance(m.start(), type(1)))
+        self.assertTrue(isinstance(m.end(), type(1)))
+
     def test_set_unanchored(self):
         s = re2.Set(re2.UNANCHORED)
         s_with_default_anchoring = re2.Set()
