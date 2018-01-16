@@ -73,13 +73,9 @@ typedef struct _RegexpSetObject2 {
 } RegexpSetObject2;
 
 
-// Imported from sre_constants.
-static PyObject* error_class;
-
-
 // Forward declarations of methods, creators, and destructors.
 static void regexp_dealloc(RegexpObject2* self);
-static PyObject* create_regexp(PyObject* pattern);
+static PyObject* create_regexp(PyObject* self, PyObject* pattern, PyObject* error_class);
 static PyObject* regexp_search(RegexpObject2* self, PyObject* args, PyObject* kwds);
 static PyObject* regexp_match(RegexpObject2* self, PyObject* args, PyObject* kwds);
 static PyObject* regexp_fullmatch(RegexpObject2* self, PyObject* args, PyObject* kwds);
@@ -330,7 +326,7 @@ regexp_dealloc(RegexpObject2* self)
 }
 
 static PyObject*
-create_regexp(PyObject* pattern)
+create_regexp(PyObject* self, PyObject* pattern, PyObject* error_class)
 {
   RegexpObject2* regexp = PyObject_New(RegexpObject2, &Regexp_Type2);
   if (regexp == NULL) {
@@ -942,20 +938,18 @@ regexp_set_match(RegexpSetObject2* self, PyObject* text)
 
 
 static PyObject*
-_compile(PyObject* self, PyObject* args, PyObject* kwds)
+_compile(PyObject* self, PyObject* args)
 {
-  static const char* kwlist[] = {
-    "pattern",
-    NULL};
-
   PyObject *pattern;
+  PyObject *error_class;
 
-  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O!:_compile", (char**)kwlist,
-                                   REGEX_OBJECT_TYPE, &pattern)) {
+  if (!PyArg_ParseTuple(args, "O!O:_compile",
+                                   REGEX_OBJECT_TYPE, &pattern,
+                                   &error_class)) {
     return NULL;
   }
 
-  return create_regexp(pattern);
+  return create_regexp(self, pattern, error_class);
 }
 
 static PyObject*
@@ -970,7 +964,11 @@ escape(PyObject* self, PyObject* args)
 
   std::string esc(RE2::QuoteMeta(StringPiece(str, (int)len)));
 
-  return PyBytes_FromStringAndSize(esc.c_str(), esc.size());
+#if PY_MAJOR_VERSION >= 3
+  return PyUnicode_FromStringAndSize(esc.c_str(), esc.size());
+#else
+  return PyString_FromStringAndSize(esc.c_str(), esc.size());
+#endif
 }
 
 static PyMethodDef methods[] = {
@@ -1019,23 +1017,11 @@ init_re2(void)
     INITERROR;
   }
 
-  PyObject* sre_mod = PyImport_ImportModuleNoBlock("sre_constants");
-  if (sre_mod == NULL) {
-    INITERROR;
-  }
-  /* static global */ error_class = PyObject_GetAttrString(sre_mod, "error");
-  if (error_class == NULL) {
-    INITERROR;
-  }
-
 #if PY_MAJOR_VERSION >= 3
   PyObject* mod = PyModule_Create(&moduledef);
 #else
   PyObject* mod = Py_InitModule("_re2", methods);
 #endif
-
-  Py_INCREF(error_class);
-  PyModule_AddObject(mod, "error", error_class);
 
   Py_INCREF(&RegexpSet_Type2);
   PyModule_AddObject(mod, "Set", (PyObject*)&RegexpSet_Type2);
