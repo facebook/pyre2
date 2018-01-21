@@ -177,142 +177,140 @@ _no_setattr(PyObject* obj, PyObject* name, PyObject* v) {
 }
 
 #if PY_MAJOR_VERSION >= 3
-#define UNSET NULL
 #define REGEX_OBJECT_TYPE &PyUnicode_Type
 #else
-#define UNSET 0
 #define REGEX_OBJECT_TYPE &PyString_Type
 #endif
 
 static PyTypeObject Regexp_Type2 = {
   PyObject_HEAD_INIT(NULL)
 #if PY_MAJOR_VERSION < 3
-  UNSET,                       /*ob_size*/
+  0,                       /*ob_size*/
 #endif
   "_re2.RE2_Regexp",           /*tp_name*/
   sizeof(RegexpObject2),       /*tp_basicsize*/
-  UNSET,                           /*tp_itemsize*/
+  0,                           /*tp_itemsize*/
   (destructor)regexp_dealloc,  /*tp_dealloc*/
-  UNSET,                           /*tp_print*/
-  UNSET,                           /*tp_getattr*/
-  UNSET,                           /*tp_setattr*/
-  UNSET,                           /*tp_compare*/
-  UNSET,                           /*tp_repr*/
-  UNSET,                           /*tp_as_number*/
-  UNSET,                           /*tp_as_sequence*/
-  UNSET,                           /*tp_as_mapping*/
-  UNSET,                           /*tp_hash*/
-  UNSET,                           /*tp_call*/
-  UNSET,                           /*tp_str*/
-  UNSET,                           /*tp_getattro*/
+  0,                           /*tp_print*/
+  0,                           /*tp_getattr*/
+  0,                           /*tp_setattr*/
+  0,                           /*tp_compare*/
+  0,                           /*tp_repr*/
+  0,                           /*tp_as_number*/
+  0,                           /*tp_as_sequence*/
+  0,                           /*tp_as_mapping*/
+  0,                           /*tp_hash*/
+  0,                           /*tp_call*/
+  0,                           /*tp_str*/
+  0,                           /*tp_getattro*/
   _no_setattr,                 /*tp_setattro*/
-  UNSET,                           /*tp_as_buffer*/
+  0,                           /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT,          /*tp_flags*/
   "RE2 regexp objects",        /*tp_doc*/
-  UNSET,                           /*tp_traverse*/
-  UNSET,                           /*tp_clear*/
-  UNSET,                           /*tp_richcompare*/
-  UNSET,                           /*tp_weaklistoffset*/
-  UNSET,                           /*tp_iter*/
-  UNSET,                           /*tp_iternext*/
+  0,                           /*tp_traverse*/
+  0,                           /*tp_clear*/
+  0,                           /*tp_richcompare*/
+  0,                           /*tp_weaklistoffset*/
+  0,                           /*tp_iter*/
+  0,                           /*tp_iternext*/
   regexp_methods,              /*tp_methods*/
-  UNSET,                           /*tp_members*/
-  UNSET,                           /*tp_getset*/
-  UNSET,                           /*tp_base*/
-  UNSET,                           /*tp_dict*/
-  UNSET,                           /*tp_descr_get*/
-  UNSET,                           /*tp_descr_set*/
+  0,                           /*tp_members*/
+  0,                           /*tp_getset*/
+  0,                           /*tp_base*/
+  0,                           /*tp_dict*/
+  0,                           /*tp_descr_get*/
+  0,                           /*tp_descr_set*/
   offsetof(RegexpObject2, attr_dict),  /*tp_dictoffset*/
-  UNSET,                           /*tp_init*/
-  UNSET,                           /*tp_alloc*/
-  UNSET,                           /*tp_new*/
+  0,                           /*tp_init*/
+  0,                           /*tp_alloc*/
+  0,                           /*tp_new*/
 };
 
 static PyTypeObject Match_Type2 = {
   PyObject_HEAD_INIT(NULL)
 #if PY_MAJOR_VERSION < 3
-  UNSET,                       /*ob_size*/
+  0,                       /*ob_size*/
 #endif
   "_re2.RE2_Match",            /*tp_name*/
   sizeof(MatchObject2),        /*tp_basicsize*/
-  UNSET,                           /*tp_itemsize*/
+  0,                           /*tp_itemsize*/
   (destructor)match_dealloc,   /*tp_dealloc*/
-  UNSET,                           /*tp_print*/
-  UNSET,                           /*tp_getattr*/
-  UNSET,                           /*tp_setattr*/
-  UNSET,                           /*tp_compare*/
-  UNSET,                           /*tp_repr*/
-  UNSET,                           /*tp_as_number*/
-  UNSET,                           /*tp_as_sequence*/
-  UNSET,                           /*tp_as_mapping*/
-  UNSET,                           /*tp_hash*/
-  UNSET,                           /*tp_call*/
-  UNSET,                           /*tp_str*/
-  UNSET,                           /*tp_getattro*/
+  0,                           /*tp_print*/
+  0,                           /*tp_getattr*/
+  0,                           /*tp_setattr*/
+  0,                           /*tp_compare*/
+  0,                           /*tp_repr*/
+  0,                           /*tp_as_number*/
+  0,                           /*tp_as_sequence*/
+  0,                           /*tp_as_mapping*/
+  0,                           /*tp_hash*/
+  0,                           /*tp_call*/
+  0,                           /*tp_str*/
+  0,                           /*tp_getattro*/
   _no_setattr,                 /*tp_setattro*/
-  UNSET,                           /*tp_as_buffer*/
+  0,                           /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT,          /*tp_flags*/
   "RE2 match objects",         /*tp_doc*/
-  UNSET,                           /*tp_traverse*/
-  UNSET,                           /*tp_clear*/
-  UNSET,                           /*tp_richcompare*/
-  UNSET,                           /*tp_weaklistoffset*/
-  UNSET,                           /*tp_iter*/
-  UNSET,                           /*tp_iternext*/
+  0,                           /*tp_traverse*/
+  0,                           /*tp_clear*/
+  0,                           /*tp_richcompare*/
+  0,                           /*tp_weaklistoffset*/
+  0,                           /*tp_iter*/
+  0,                           /*tp_iternext*/
   match_methods,               /*tp_methods*/
-  UNSET,                           /*tp_members*/
-  UNSET,                           /*tp_getset*/
-  UNSET,                           /*tp_base*/
-  UNSET,                           /*tp_dict*/
-  UNSET,                           /*tp_descr_get*/
-  UNSET,                           /*tp_descr_set*/
+  0,                           /*tp_members*/
+  0,                           /*tp_getset*/
+  0,                           /*tp_base*/
+  0,                           /*tp_dict*/
+  0,                           /*tp_descr_get*/
+  0,                           /*tp_descr_set*/
   offsetof(MatchObject2, attr_dict),  /*tp_dictoffset*/
-  UNSET,                           /*tp_init*/
-  UNSET,                           /*tp_alloc*/
-  UNSET,                           /*tp_new*/
+  0,                           /*tp_init*/
+  0,                           /*tp_alloc*/
+  0,                           /*tp_new*/
 };
 
 static PyTypeObject RegexpSet_Type2 = {
   PyObject_HEAD_INIT(NULL)
 #if PY_MAJOR_VERSION < 3
-  UNSET,                       /*ob_size*/
+  0,                       /*ob_size*/
 #endif
   "_re2.RE2_Set",                  /*tp_name*/
   sizeof(RegexpSetObject2),        /*tp_basicsize*/
-  UNSET,                               /*tp_itemsize*/
+  0,                               /*tp_itemsize*/
   (destructor)regexp_set_dealloc,  /*tp_dealloc*/
-  UNSET,                               /*tp_print*/
-  UNSET,                               /*tp_getattr*/
-  UNSET,                               /*tp_setattr*/
-  UNSET,                               /*tp_compare*/
-  UNSET,                               /*tp_repr*/
-  UNSET,                               /*tp_as_number*/
-  UNSET,                               /*tp_as_sequence*/
-  UNSET,                               /*tp_as_mapping*/
-  UNSET,                               /*tp_hash*/
-  UNSET,                               /*tp_call*/
-  UNSET,                               /*tp_str*/
-  UNSET,                               /*tp_getattro*/
+  0,                               /*tp_print*/
+  0,                               /*tp_getattr*/
+  0,                               /*tp_setattr*/
+  0,                               /*tp_compare*/
+  0,                               /*tp_repr*/
+  0,                               /*tp_as_number*/
+  0,                               /*tp_as_sequence*/
+  0,                               /*tp_as_mapping*/
+  0,                               /*tp_hash*/
+  0,                               /*tp_call*/
+  0,                               /*tp_str*/
+  0,                               /*tp_getattro*/
   _no_setattr,                     /*tp_setattro*/
-  UNSET,                               /*tp_as_buffer*/
+  0,                               /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT,              /*tp_flags*/
   "RE2 regexp set objects",        /*tp_doc*/
-  UNSET,                               /*tp_traverse*/
-  UNSET,                               /*tp_clear*/
-  UNSET,                               /*tp_richcompare*/
-  UNSET,                               /*tp_weaklistoffset*/
-  UNSET,                               /*tp_iter*/
-  UNSET,                               /*tp_iternext*/
+  0,                               /*tp_traverse*/
+  0,                               /*tp_clear*/
+  0,                               /*tp_richcompare*/
+  0,                               /*tp_weaklistoffset*/
+  0,                               /*tp_iter*/
+  0,                               /*tp_iternext*/
   regexp_set_methods,              /*tp_methods*/
-  UNSET,                               /*tp_members*/
-  UNSET,                               /*tp_getset*/
-  UNSET,                               /*tp_base*/
-  UNSET,                               /*tp_dict*/
-  UNSET,                               /*tp_descr_get*/
-  UNSET,                               /*tp_descr_set*/
-  UNSET,                               /*tp_dictoffset*/
-  UNSET,                               /*tp_init*/
-  UNSET,                               /*tp_alloc*/
+  0,                               /*tp_members*/
+  0,                               /*tp_getset*/
+  0,                               /*tp_base*/
+  0,                               /*tp_dict*/
+  0,                               /*tp_descr_get*/
+  0,                               /*tp_descr_set*/
+  0,                               /*tp_dictoffset*/
+  0,                               /*tp_init*/
+  0,                               /*tp_alloc*/
   regexp_set_new,                  /*tp_new*/
 };
 
@@ -426,18 +424,22 @@ _do_search(RegexpObject2* self, PyObject* args, PyObject* kwds, RE2::Anchor anch
   const char *subject;
   Py_ssize_t slen;
 #if PY_MAJOR_VERSION >= 3
-  if (PyBytes_Check(string)) {
+  if (PyUnicode_Check(string)) {
+    subject = PyUnicode_AsUTF8AndSize(string, &slen);
+  } else if (PyBytes_Check(string)) {
     subject = PyBytes_AS_STRING(string);
     slen = PyBytes_GET_SIZE(string);
-  } else if (PyUnicode_Check(string)) {
-    subject = PyUnicode_AsUTF8AndSize(string, &slen);
   } else {
     Py_DECREF(string);
     PyErr_SetString(PyExc_TypeError, "can only operate on unicode or bytes");
     return NULL;
   } 
 #else
-  subject = PyString_AS_STRING(string);
+  subject = PyString_AsString(string);
+  if (subject == NULL) {
+    Py_DECREF(string);
+    return NULL;
+  }
   slen = PyString_GET_SIZE(string);
 #endif
   if (pos < 0) pos = 0;
@@ -854,13 +856,14 @@ regexp_set_add(RegexpSetObject2* self, PyObject* pattern)
   Py_ssize_t len_pattern;
 #if PY_MAJOR_VERSION >= 3
   const char* raw_pattern = PyUnicode_AsUTF8AndSize(pattern, &len_pattern);
-#else
-  const char* raw_pattern = PyString_AsString(pattern);
-#endif
   if (!raw_pattern) {
     return NULL;
   }
-#if PY_MAJOR_VERSION <3
+#else
+  const char* raw_pattern = PyString_AsString(pattern);
+  if (!raw_pattern) {
+    return NULL;
+  }
   len_pattern = PyString_GET_SIZE(pattern);
 #endif
   std::string add_error;
@@ -903,22 +906,22 @@ regexp_set_match(RegexpSetObject2* self, PyObject* text)
   const char* raw_text;
   Py_ssize_t len_text;
 #if PY_MAJOR_VERSION >= 3
-  if (PyBytes_Check(text)) {
-    raw_text = PyBytes_AsString(text);
-    len_text = PyBytes_GET_SIZE(text);
-  } else if (PyUnicode_Check(text)) {
+  if (PyUnicode_Check(text)) {
     raw_text = PyUnicode_AsUTF8AndSize(text, &len_text);
+  } else if (PyBytes_Check(text)) {
+    raw_text = PyBytes_AS_STRING(text);
+    len_text = PyBytes_GET_SIZE(text);
   } else {
     PyErr_SetString(PyExc_TypeError, "expected str or bytes");
     return NULL;
   }
 #else
   raw_text = PyString_AsString(text);
-  len_text = PyString_GET_SIZE(text);
-#endif
-  if (!raw_text) {
+  if (raw_text == NULL) {
     return NULL;
   }
+  len_text = PyString_GET_SIZE(text);
+#endif
 
   std::vector<int> idxes;
   bool matched = self->re2_set_obj->Match(StringPiece(raw_text, (int)len_text), &idxes);
