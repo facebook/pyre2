@@ -58,7 +58,7 @@ typedef struct _MatchObject2 {
   PyObject* string;
   // There are several possible approaches to storing the matched groups:
   // 1. Fully materialize the groups tuple at match time.
-  // 2. Cache allocate PyBytes objects when groups are requested.
+  // 2. Cache allocated PyBytes objects when groups are requested.
   // 3. Always allocate new PyBytess on demand.
   // I've chosen to go with #3.  It's the simplest, and I'm pretty sure it's
   // optimal in all cases where no group is fetched more than once.
@@ -185,7 +185,7 @@ _no_setattr(PyObject* obj, PyObject* name, PyObject* v) {
 static PyTypeObject Regexp_Type2 = {
   PyObject_HEAD_INIT(NULL)
 #if PY_MAJOR_VERSION < 3
-  0,                       /*ob_size*/
+  0,                           /*ob_size*/
 #endif
   "_re2.RE2_Regexp",           /*tp_name*/
   sizeof(RegexpObject2),       /*tp_basicsize*/
@@ -384,6 +384,8 @@ create_regexp(PyObject* self, PyObject* pattern, PyObject* error_class)
 
   const std::map<std::string, int>& name_map = regexp->re2_obj->NamedCapturingGroups();
   for (std::map<std::string, int>::const_iterator it = name_map.begin(); it != name_map.end(); ++it) {
+    // This used to return an int() on Py2, but now returns a long() to be
+    // consistent across Py3 and Py2.
     PyObject* index = PyLong_FromLong(it->second);
     if (index == NULL) {
       Py_DECREF(regexp);
@@ -413,7 +415,7 @@ _do_search(RegexpObject2* self, PyObject* args, PyObject* kwds, RE2::Anchor anch
     "endpos",
     NULL};
 
-  // Using O! instead of s# here, because we want to stash the original
+  // Using O instead of s# here, because we want to stash the original
   // PyObject* in the match object on a successful match.
   if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|ll", (char**)kwlist,
         &string,
@@ -430,14 +432,12 @@ _do_search(RegexpObject2* self, PyObject* args, PyObject* kwds, RE2::Anchor anch
     subject = PyBytes_AS_STRING(string);
     slen = PyBytes_GET_SIZE(string);
   } else {
-    Py_DECREF(string);
     PyErr_SetString(PyExc_TypeError, "can only operate on unicode or bytes");
     return NULL;
   } 
 #else
   subject = PyString_AsString(string);
   if (subject == NULL) {
-    Py_DECREF(string);
     return NULL;
   }
   slen = PyString_GET_SIZE(string);
