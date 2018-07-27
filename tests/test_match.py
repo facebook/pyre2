@@ -10,6 +10,13 @@ class TestMatch(unittest.TestCase):
         self.assertEqual(m.span(), (0, 3))
         self.assertEqual(m.groups(), tuple())
         self.assertEqual(m.groupdict(), {})
+        self.assertEqual(m.pos, 0)
+        self.assertEqual(m.endpos, 3)
+        self.assertEqual(m.string, 'abc')
+        self.assertIsNotNone(m.re)
+        self.assertEqual(m.re.pattern, 'abc')
+        self.assertEqual(m.re.groups, 0)
+        self.assertEqual(m.re.groupindex, {})
 
     def test_group_match(self):
         m = re2.match('ab([cde]fg)', 'abdfghij')
@@ -19,6 +26,29 @@ class TestMatch(unittest.TestCase):
         self.assertEqual(m.span(), (0, 5))
         self.assertEqual(m.groups(), ('dfg',))
         self.assertEqual(m.groupdict(), {})
+        self.assertEqual(m.pos, 0)
+        self.assertEqual(m.endpos, 8)
+        self.assertEqual(m.string, 'abdfghij')
+        self.assertIsNotNone(m.re)
+        self.assertEqual(m.re.pattern, 'ab([cde]fg)')
+        self.assertEqual(m.re.groups, 1)
+        self.assertEqual(m.re.groupindex, {})
+
+    def test_named_group_match(self):
+        m = re2.match('ab(?P<testgroup>[cde]fg)', 'abdfghij')
+        self.assertIsNotNone(m)
+        self.assertEqual(m.start(), 0)
+        self.assertEqual(m.end(), 5)
+        self.assertEqual(m.span(), (0, 5))
+        self.assertEqual(m.groups(), ('dfg',))
+        self.assertEqual(m.groupdict(), {'testgroup': 'dfg'})
+        self.assertEqual(m.pos, 0)
+        self.assertEqual(m.endpos, 8)
+        self.assertEqual(m.string, 'abdfghij')
+        self.assertIsNotNone(m.re)
+        self.assertEqual(m.re.pattern, 'ab(?P<testgroup>[cde]fg)')
+        self.assertEqual(m.re.groups, 1)
+        self.assertEqual(m.re.groupindex, {'testgroup': 1})
 
     def test_compiled_match(self):
         r = re2.compile('ab([cde]fg)')
@@ -29,6 +59,13 @@ class TestMatch(unittest.TestCase):
         self.assertEqual(m.span(), (0, 5))
         self.assertEqual(m.groups(), ('dfg',))
         self.assertEqual(m.groupdict(), {})
+        self.assertEqual(m.pos, 0)
+        self.assertEqual(m.endpos, 8)
+        self.assertEqual(m.string, 'abdfghij')
+        self.assertIsNotNone(m.re)
+        self.assertEqual(m.re.pattern, 'ab([cde]fg)')
+        self.assertEqual(m.re.groups, 1)
+        self.assertEqual(m.re.groupindex, {})
 
     def test_match_raise(self):
         '''test that using the API incorrectly fails'''
@@ -44,6 +81,13 @@ class TestMatch(unittest.TestCase):
         self.assertTrue(isinstance(g, tuple))
         self.assertTrue(isinstance(g[0], bytes))
         self.assertEqual(b'\x09', g[0])
+        self.assertEqual(m.pos, 0)
+        self.assertEqual(m.endpos, 1)
+        self.assertEqual(m.string, b'\x09')
+        self.assertIsNotNone(m.re)
+        self.assertEqual(m.re.pattern, '(\\x09)')
+        self.assertEqual(m.re.groups, 1)
+        self.assertEqual(m.re.groupindex, {})
 
     def test_match_str(self):
         ''' test that we can match binary things in the str type '''
@@ -60,6 +104,10 @@ class TestMatch(unittest.TestCase):
         r = re2.compile('\\x80')
         m = r.match(b'\x80')
         self.assertIsNone(m)
+
+    def test_invalid_pattern(self):
+        ''' Verify that bad patterns raise an exception '''
+        self.assertRaises(Exception, lambda: re2.compile(')'))
 
     def test_span_type(self):
         ''' verify that start/end return the native literal integer type '''
