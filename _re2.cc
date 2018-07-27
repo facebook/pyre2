@@ -39,23 +39,23 @@ using std::nothrow;
 using re2::RE2;
 using re2::StringPiece;
 
+#include <structmember.h>
+
 
 typedef struct _RegexpObject2 {
   PyObject_HEAD
-  // __dict__.  Simpler than implementing getattr and possibly faster.
-  PyObject* attr_dict;
   RE2* re2_obj;
+  Py_ssize_t groups;
+  PyObject* groupindex;
+  PyObject* pattern;
 } RegexpObject2;
 
 typedef struct _MatchObject2 {
   PyObject_HEAD
-  // __dict__.  Simpler than implementing getattr and possibly faster.
-  PyObject* attr_dict;
-  // Cache of __dict__["re"] and __dict__["string", which are used for group()
-  // calls. These fields do *not* own their own references.  They piggyback on
-  // the references in attr_dict.
   PyObject* re;
   PyObject* string;
+  Py_ssize_t pos; /* beginning of target slice */
+  Py_ssize_t endpos; /* end of target slice */
   // There are several possible approaches to storing the matched groups:
   // 1. Fully materialize the groups tuple at match time.
   // 2. Cache allocated PyBytes objects when groups are requested.
@@ -64,6 +64,31 @@ typedef struct _MatchObject2 {
   // optimal in all cases where no group is fetched more than once.
   StringPiece* groups;
 } MatchObject2;
+
+
+// Forward declaration of getter functions
+static PyObject* match_pos_get(MatchObject2* self);
+static PyObject* match_endpos_get(MatchObject2* self);
+static PyObject* match_re_get(MatchObject2* self);
+static PyObject* match_string_get(MatchObject2* self);
+static PyObject* regexp_groups_get(RegexpObject2* self);
+static PyObject* regexp_groupindex_get(RegexpObject2* self);
+static PyObject* regexp_pattern_get(RegexpObject2* self);
+
+static PyGetSetDef regexp_getset[] = {
+  {(char *)"groupindex",    (getter)regexp_groupindex_get,  (setter)NULL},
+  {(char *)"groups",        (getter)regexp_groups_get,      (setter)NULL},
+  {(char *)"pattern",       (getter)regexp_pattern_get,     (setter)NULL},
+  {NULL}
+};
+
+static PyGetSetDef match_getset[] = {
+  {(char *)"endpos",       (getter)match_endpos_get,   (setter)NULL},
+  {(char *)"pos",          (getter)match_pos_get,      (setter)NULL},
+  {(char *)"re",           (getter)match_re_get,       (setter)NULL},
+  {(char *)"string",       (getter)match_string_get,   (setter)NULL},
+  {NULL}
+};
 
 typedef struct _RegexpSetObject2 {
   PyObject_HEAD
@@ -215,12 +240,12 @@ static PyTypeObject Regexp_Type2 = {
   0,                           /*tp_iternext*/
   regexp_methods,              /*tp_methods*/
   0,                           /*tp_members*/
-  0,                           /*tp_getset*/
+  regexp_getset,               /*tp_getset*/
   0,                           /*tp_base*/
   0,                           /*tp_dict*/
   0,                           /*tp_descr_get*/
   0,                           /*tp_descr_set*/
-  offsetof(RegexpObject2, attr_dict),  /*tp_dictoffset*/
+  0,                           /*tp_dictoffset*/
   0,                           /*tp_init*/
   0,                           /*tp_alloc*/
   0,                           /*tp_new*/
@@ -259,12 +284,12 @@ static PyTypeObject Match_Type2 = {
   0,                           /*tp_iternext*/
   match_methods,               /*tp_methods*/
   0,                           /*tp_members*/
-  0,                           /*tp_getset*/
+  match_getset,                /*tp_getset*/
   0,                           /*tp_base*/
   0,                           /*tp_dict*/
   0,                           /*tp_descr_get*/
   0,                           /*tp_descr_set*/
-  offsetof(MatchObject2, attr_dict),  /*tp_dictoffset*/
+  0,                           /*tp_dictoffset*/
   0,                           /*tp_init*/
   0,                           /*tp_alloc*/
   0,                           /*tp_new*/
@@ -314,12 +339,85 @@ static PyTypeObject RegexpSet_Type2 = {
   regexp_set_new,                  /*tp_new*/
 };
 
+// getters for MatchObject2
+static PyObject*
+match_pos_get(MatchObject2* self)
+{
+  return PyLong_FromSsize_t(self->pos);
+}
+
+static PyObject*
+match_endpos_get(MatchObject2* self)
+{
+  return PyLong_FromSsize_t(self->endpos);
+}
+
+static PyObject*
+match_re_get(MatchObject2* self)
+{
+  Py_INCREF(self->re);
+  return self->re;
+}
+
+static PyObject*
+match_string_get(MatchObject2* self)
+{
+  Py_INCREF(self->string);
+  return self->string;
+}
+
+// getters for RegexObject2
+static PyObject*
+regexp_groups_get(RegexpObject2* self)
+{
+  return PyLong_FromSsize_t(self->groups);
+}
+
+static PyObject*
+regexp_groupindex_get(RegexpObject2* self)
+{
+  if (self->groupindex == NULL) {
+    PyObject* groupindex = PyDict_New();
+    if (groupindex == NULL) {
+      return NULL;
+    }
+
+    const std::map<std::string, int>& name_map = self->re2_obj->NamedCapturingGroups();
+    for (std::map<std::string, int>::const_iterator it = name_map.begin(); it != name_map.end(); ++it) {
+      // This used to return an int() on Py2, but now returns a long() to be
+      // consistent across Py3 and Py2.
+      PyObject* index = PyLong_FromLong(it->second);
+      if (index == NULL) {
+        Py_DECREF(groupindex);
+        return NULL;
+      }
+
+      int res = PyDict_SetItemString(groupindex, it->first.c_str(), index);
+      Py_DECREF(index);
+      if (res < 0) {
+        Py_DECREF(groupindex);
+        return NULL;
+      }
+    }
+    self->groupindex = groupindex;
+  }
+
+  Py_INCREF(self->groupindex);
+  return self->groupindex;
+}
+
+static PyObject* regexp_pattern_get(RegexpObject2* self)
+{
+  Py_INCREF(self->pattern);
+  return self->pattern;
+}
 
 static void
 regexp_dealloc(RegexpObject2* self)
 {
   delete self->re2_obj;
-  Py_XDECREF(self->attr_dict);
+  Py_XDECREF(self->pattern);
+  Py_XDECREF(self->groupindex);
   PyObject_Del(self);
 }
 
@@ -331,7 +429,7 @@ create_regexp(PyObject* self, PyObject* pattern, PyObject* error_class)
     return NULL;
   }
   regexp->re2_obj = NULL;
-  regexp->attr_dict = NULL;
+  regexp->groupindex = NULL;
 
   Py_ssize_t len_pattern;
 #if PY_MAJOR_VERSION >= 3
@@ -365,40 +463,10 @@ create_regexp(PyObject* self, PyObject* pattern, PyObject* error_class)
     return NULL;
   }
 
-  PyObject* groupindex = PyDict_New();
-  if (groupindex == NULL) {
-    Py_DECREF(regexp);
-    return NULL;
-  }
-
-  // Build up the attr_dict early so regexp can take ownership of our reference
-  // to groupindex.
-  regexp->attr_dict = Py_BuildValue("{sisNsO}",
-      "groups", regexp->re2_obj->NumberOfCapturingGroups(),
-      "groupindex", groupindex,
-      "pattern", pattern);
-  if (regexp->attr_dict == NULL) {
-    Py_DECREF(regexp);
-    return NULL;
-  }
-
-  const std::map<std::string, int>& name_map = regexp->re2_obj->NamedCapturingGroups();
-  for (std::map<std::string, int>::const_iterator it = name_map.begin(); it != name_map.end(); ++it) {
-    // This used to return an int() on Py2, but now returns a long() to be
-    // consistent across Py3 and Py2.
-    PyObject* index = PyLong_FromLong(it->second);
-    if (index == NULL) {
-      Py_DECREF(regexp);
-      return NULL;
-    }
-    int res = PyDict_SetItemString(groupindex, it->first.c_str(), index);
-    Py_DECREF(index);
-    if (res < 0) {
-      Py_DECREF(regexp);
-      return NULL;
-    }
-  }
-
+  Py_INCREF(pattern);
+  regexp->pattern = pattern;
+  regexp->groups = regexp->re2_obj->NumberOfCapturingGroups();
+  regexp->groupindex = NULL;
   return (PyObject*)regexp;
 }
 
@@ -480,10 +548,6 @@ _do_search(RegexpObject2* self, PyObject* args, PyObject* kwds, RE2::Anchor anch
     Py_RETURN_NONE;
   }
 
-  // create_match is going to Py_BuildValue the pos and endpos into
-  // PyObjects.  We could optimize the case where pos and/or endpos were
-  // explicitly passed in by forwarding the existing PyObjects.
-  // That requires much more intricate code, though.
   return create_match((PyObject*)self, string, pos, endpos, groups);
 }
 
@@ -527,8 +591,9 @@ regexp_test_fullmatch(RegexpObject2* self, PyObject* args, PyObject* kwds)
 static void
 match_dealloc(MatchObject2* self)
 {
+  Py_DECREF(self->re);
+  Py_DECREF(self->string);
   delete[] self->groups;
-  Py_XDECREF(self->attr_dict);
   PyObject_Del(self);
 }
 
@@ -538,24 +603,21 @@ create_match(PyObject* re, PyObject* string,
     StringPiece* groups)
 {
   MatchObject2* match = PyObject_New(MatchObject2, &Match_Type2);
+  match->re = NULL;
+  match->groups = NULL;
+  match->string = NULL;
+
   if (match == NULL) {
     delete[] groups;
     return NULL;
   }
-  match->attr_dict = NULL;
   match->groups = groups;
+  Py_INCREF(re);
   match->re = re;
+  Py_INCREF(string);
   match->string = string;
-
-  match->attr_dict = Py_BuildValue("{sOsOslsl}",
-      "re", re,
-      "string", string,
-      "pos", pos,
-      "endpos", endpos);
-  if (match->attr_dict == NULL) {
-    Py_DECREF(match);
-    return NULL;
-  }
+  match->pos = pos;
+  match->endpos = endpos;
 
   return (PyObject*)match;
 }
