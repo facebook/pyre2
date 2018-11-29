@@ -428,6 +428,7 @@ create_regexp(PyObject* self, PyObject* pattern, PyObject* error_class)
   if (regexp == NULL) {
     return NULL;
   }
+  regexp->pattern = NULL;
   regexp->re2_obj = NULL;
   regexp->groupindex = NULL;
 
