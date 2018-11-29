@@ -2,3 +2,5 @@
 /dist
 *.so
 *.py[co]
+*.egg-info
+.tox/
