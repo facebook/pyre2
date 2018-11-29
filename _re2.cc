@@ -604,14 +604,14 @@ create_match(PyObject* re, PyObject* string,
     StringPiece* groups)
 {
   MatchObject2* match = PyObject_New(MatchObject2, &Match_Type2);
-  match->re = NULL;
-  match->groups = NULL;
-  match->string = NULL;
-
   if (match == NULL) {
     delete[] groups;
     return NULL;
   }
+  match->re = NULL;
+  match->groups = NULL;
+  match->string = NULL;
+
   match->groups = groups;
   Py_INCREF(re);
   match->re = re;
