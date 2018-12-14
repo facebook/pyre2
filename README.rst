@@ -17,8 +17,6 @@ It implements many of the features of Python's built-in
 New Features
 ============
 
-* ``Regexp`` objects have a ``fullmatch`` method that works like ``match``,
-  but anchors the match at both the start and the end.
 * ``Regexp`` objects have
   ``test_search``, ``test_match``, and ``test_fullmatch``
   methods that work like ``search``, ``match``, and ``fullmatch``,
