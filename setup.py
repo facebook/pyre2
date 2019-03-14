@@ -17,7 +17,7 @@ setup(
     maintainer="Siddharth Agarwal",
     maintainer_email="sid0@fb.com",
     py_modules = ["re2"],
-    test_suite = "tests.test_match.TestMatch",
+    test_suite = "tests",
     ext_modules = [Extension("_re2",
       sources = ["_re2.cc"],
       libraries = ["re2"],
