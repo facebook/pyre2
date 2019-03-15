@@ -454,7 +454,7 @@ create_regexp(PyObject* self, PyObject* pattern, PyObject* error_class)
   if (!regexp->re2_obj->ok()) {
     const std::string& msg = regexp->re2_obj->error();
 #if PY_MAJOR_VERSION >= 3
-    PyObject* value = Py_BuildValue("s#", msg.data(), msg.length());
+    PyObject* value = PyUnicode_FromStringAndSize(msg.data(), msg.length());
 #else
     long code = (long)regexp->re2_obj->error_code();
     PyObject* value = Py_BuildValue("ls#", code, msg.data(), msg.length());
