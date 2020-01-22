@@ -69,3 +69,9 @@ Contact
 
 You can file bug reports on GitHub, or email the author:
 David Reiss <dreiss@fb.com>.
+
+
+License
+=======
+
+See the `<LICENSE>`_ file for more information.
