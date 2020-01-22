@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Copyright (c) Facebook, Inc. and its affiliates.
 
 from setuptools import setup, Extension
 

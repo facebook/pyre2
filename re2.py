@@ -1,4 +1,4 @@
-# Copyright (c) 2010, David Reiss and Facebook, Inc. All rights reserved.
+# Copyright (c) Facebook, Inc. and its affiliates.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
