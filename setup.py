@@ -17,6 +17,7 @@ setup(
     author_email="dreiss@fb.com",
     maintainer="Siddharth Agarwal",
     maintainer_email="sid0@fb.com",
+    include_package_data=True,  # Include files listed in MANIFEST.in
     py_modules = ["re2"],
     test_suite = "tests",
     ext_modules = [Extension("_re2",
