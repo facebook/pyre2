@@ -22,6 +22,6 @@ setup(
     ext_modules = [Extension("_re2",
       sources = ["_re2.cc"],
       libraries = ["re2"],
-      extra_compile_args=['-std=c++11'],
+      extra_compile_args=['-std=c++17'],
       )],
     )
